@@ -7,10 +7,10 @@ Setup:
  qmgmt -u <api-url> user config add docker <email>
 ```
 
-* set mandatory configuration in quobyte-docker-volume.py
+* set mandatory configuration in environment
 ```
-QMGMT_USER = "docker"
-QMGMT_PASSWORD = ""
+QUOBYTE_API_USER = "docker"
+QUOBYTE_API_PASSWORD = "..."
 QUOBYTE_API_URL = "http://<host>:7860/"
 # host[:port][,host:port] or SRV record name
 QUOBYTE_REGISTRY = ""

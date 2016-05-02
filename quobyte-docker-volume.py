@@ -14,36 +14,48 @@
 #   docker rm <volumename>
 #   docker run --volume-driver=quobyte -v <quobyte volumename>:path
 
-# Mandatory configuration
-QMGMT_USER = "docker"
-QMGMT_PASSWORD = ""
-QUOBYTE_API_URL = "http://<host>:7860/"
-# host[:port][,host:port] or SRV record name
-QUOBYTE_REGISTRY = ""
-
-# Optional configuration
-MOUNT_QUOBYTE_PATH = ""
-QMGMT_PATH = ""
-DEFAULT_VOLUME_CONFIGURATION = "BASE"
-
-# Constants
-PLUGIN_SOCKET = '/run/docker/plugins/quobyte.sock'
-MOUNT_DIRECTORY = '/run/docker/quobyte/mnt'
-
 from BaseHTTPServer import BaseHTTPRequestHandler
 import urlparse
 import BaseHTTPServer
-
+import json
+import os, os.path
 import socket
 import sys
-import os, os.path
-import json
+import time
+
+def getenv_mandatory(name):
+  result = os.getenv(name)
+  if not result:
+    raise BaseException("Please set " + name + " in environment")
+  return result
+
+# Mandatory configuration
+QMGMT_USER = getenv_mandatory("QUOBYTE_API_USER")
+QMGMT_PASSWORD = getenv_mandatory("QUOBYTE_API_PASSWORD")
+QUOBYTE_API_URL = getenv_mandatory("QUOBYTE_API_URL")
+# host[:port][,host:port] or SRV record name
+QUOBYTE_REGISTRY = getenv_mandatory("QUOBYTE_REGISTRY")
+
+# Optional configuration
+MOUNT_QUOBYTE_PATH = ""
+MOUNT_QUOBYTE_OPTIONS = "-o user_xattr"
+QMGMT_PATH = ""
+DEFAULT_VOLUME_CONFIGURATION = "BASE"
+
+
+# Constants
+PLUGIN_DIRECTORY = '/run/docker/plugins/'
+PLUGIN_SOCKET = PLUGIN_DIRECTORY + 'quobyte.sock'
+MOUNT_DIRECTORY = '/run/docker/quobyte/mnt'
 
 def mount_all(path):
     binary = "mount.quobyte"
     if MOUNT_QUOBYTE_PATH:
         binary = os.path.join(MOUNT_QUOBYTE_PATH, binary)
-    return os.system(binary + " " + QUOBYTE_REGISTRY + "/ " + MOUNT_DIRECTORY)
+    mnt_cmd = (binary + " " + MOUNT_QUOBYTE_OPTIONS + " " +
+        QUOBYTE_REGISTRY + "/ " + MOUNT_DIRECTORY)
+    print mnt_cmd
+    return os.system(mnt_cmd)
 
 def qmgmt(params):
     binary = "qmgmt"
@@ -144,7 +156,7 @@ class DockerHandler(BaseHTTPRequestHandler):
           if os.path.exists(mountpoint):
               break
           print "Waiting for", mountpoint
-          os.sleep(1)
+          time.sleep(1)
 
       self.respond({"Err": None})
 
@@ -173,9 +185,25 @@ class DockerHandler(BaseHTTPRequestHandler):
       print request
       self.respond({"Err": None})
 
+    elif self.path == "/VolumeDriver.List":
+      request = self.get_request()
+      print request
+      volumes = os.listdir(MOUNT_DIRECTORY)
+      result = [{"Name": v, "Mountpoint": os.path.join(MOUNT_DIRECTORY, v)} for v in volumes]
+      self.respond({"Volumes": result, "Err": None})
+
+    else:
+      print "Unknown API operation:", self.path
+      self.respond({"Err": "Unknown API operation: " + self.path})
+
 if __name__ == '__main__':
      try:
          os.makedirs(MOUNT_DIRECTORY)
+     except OSError, e:
+         if e.errno != 17:
+             raise e
+     try:
+         os.makedirs(PLUGIN_DIRECTORY)
      except OSError, e:
          if e.errno != 17:
              raise e
