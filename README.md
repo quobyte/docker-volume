@@ -9,16 +9,16 @@ Setup:
 
 * set mandatory configuration in environment
 ```
-QUOBYTE_API_USER = "docker"
-QUOBYTE_API_PASSWORD = "..."
-QUOBYTE_API_URL = "http://<host>:7860/"
+export QUOBYTE_API_USER=docker
+export QUOBYTE_API_PASSWORD=...
+export QUOBYTE_API_URL=http://<host>:7860/
 # host[:port][,host:port] or SRV record name
-QUOBYTE_REGISTRY = ""
+export QUOBYTE_REGISTRY=quobyte.corp
 ```
 
-* Start the plug-in with
+* Start the plug-in as root (with above environment)
 ``` 
-sudo ./quobyte-docker-volume.py 
+quobyte-docker-volume.py 
 ```
 
 Examples:
