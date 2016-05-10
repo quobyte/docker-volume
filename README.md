@@ -30,5 +30,14 @@ Examples:
 # docker run --volume-driver=quobyte -v <quobyte volumename>:path
 ```
 
-Todos:
-* Add quobyte-docker-volume.service for systemd
+* Install systemd files
+Set the variables in systemd/docker-quobyte.env.sample
+
+```
+cp systemd/docker-quobyte.env.sample /etc/quobyte/docker-quobyte.env
+cp quobyte-docker-volume.py /usr/libexec/docker/
+cp systemd/* /lib/systemd/system
+
+systemctl enable docker-quobyte-plugin
+systemctl status docker-quobyte-plugin
+```
