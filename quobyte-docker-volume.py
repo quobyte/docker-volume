@@ -186,8 +186,8 @@ class DockerHandler(BaseHTTPRequestHandler):
       mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
       if os.path.exists(mountpoint):
           self.respond(
-            "Volume": {"Name": request["Name"], "Mountpoint": mountpoint},
-            "Err": "")
+            {"Volume": {"Name": request["Name"], "Mountpoint": mountpoint},
+             "Err": ""})
       else:
           self.respond({"Err": "Not mounted: " + request["Name"]}) 
 
