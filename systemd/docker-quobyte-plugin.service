@@ -1,0 +1,13 @@
+[Unit]
+Description=Docker Quobyte Plugin
+Documentation=https://github.com/quobyte/docker-volume
+Before=docker.service
+After=network.target docker-quobyte-plugin.socket
+Requires=docker-quobyte-plugin.socket docker.service
+
+[Service]
+EnvironmentFile=/etc/quobyte/docker-quobyte.env
+ExecStart=/usr/bin/python /usr/libexec/docker/quobyte-docker-volume.py
+
+[Install]
+WantedBy=multi-user.target

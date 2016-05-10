@@ -1,0 +1,9 @@
+[Unit]
+Description=Docker Quobyte plugin Socket for the API
+Documentation=https://github.com/quobyte/docker-volume
+
+[Socket]
+ListenStream=/run/docker/plugins/quobyte.sock
+
+[Install]
+WantedBy=sockets.target
