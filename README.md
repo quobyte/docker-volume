@@ -24,9 +24,9 @@ quobyte-docker-volume.py
 Examples:
 
 ```
-# docker create --driver quobyte --name <volumename> --opt volume_config=MyConfig
-# docker create --driver quobyte --name <volumename>
-# docker rm <volumename>
+# docker volume create --driver quobyte --name <volumename> --opt volume_config=MyConfig
+# docker volume create --driver quobyte --name <volumename>
+# docker volume rm <volumename>
 # docker run --volume-driver=quobyte -v <quobyte volumename>:path
 ```
 

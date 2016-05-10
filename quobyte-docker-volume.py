@@ -158,16 +158,16 @@ class DockerHandler(BaseHTTPRequestHandler):
           print "Waiting for", mountpoint
           time.sleep(1)
 
-      self.respond({"Err": None})
+      self.respond({"Err": ""})
 
     elif self.path == "/VolumeDriver.Remove":
       request = self.get_request()
       print request
       if not volume_exists(request["Name"]):
-          self.respond({"Err": None})
+          self.respond({"Err": ""})
           return
       if volume_delete(request["Name"]):
-          self.respond({"Err": None})
+          self.respond({"Err": ""})
       else:
           self.respond({"Err": "Could not delete " + request["Name"]})          
 
@@ -176,21 +176,32 @@ class DockerHandler(BaseHTTPRequestHandler):
       print request
       mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
       if os.path.exists(mountpoint):
-          self.respond({"Err": None, "Mountpoint": mountpoint})
+          self.respond({"Err": "", "Mountpoint": mountpoint})
+      else:
+          self.respond({"Err": "Not mounted: " + request["Name"]}) 
+
+    elif self.path == "/VolumeDriver.Get":
+      request = self.get_request()
+      print request
+      mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
+      if os.path.exists(mountpoint):
+          self.respond(
+            "Volume": {"Name": request["Name"], "Mountpoint": mountpoint},
+            "Err": "")
       else:
           self.respond({"Err": "Not mounted: " + request["Name"]}) 
 
     elif self.path == "/VolumeDriver.Unmount":
       request = self.get_request()
       print request
-      self.respond({"Err": None})
+      self.respond({"Err": ""})
 
     elif self.path == "/VolumeDriver.List":
       request = self.get_request()
       print request
       volumes = os.listdir(MOUNT_DIRECTORY)
       result = [{"Name": v, "Mountpoint": os.path.join(MOUNT_DIRECTORY, v)} for v in volumes]
-      self.respond({"Volumes": result, "Err": None})
+      self.respond({"Volumes": result, "Err": ""})
 
     else:
       print "Unknown API operation:", self.path
