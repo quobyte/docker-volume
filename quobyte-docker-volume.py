@@ -18,16 +18,18 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 import urlparse
 import BaseHTTPServer
 import json
-import os, os.path
+import os
+import os.path
 import socket
 import sys
 import time
 
+
 def getenv_mandatory(name):
-  result = os.getenv(name)
-  if not result:
-    raise BaseException("Please set " + name + " in environment")
-  return result
+    result = os.getenv(name)
+    if not result:
+        raise BaseException("Please set " + name + " in environment")
+    return result
 
 # Mandatory configuration
 QMGMT_USER = getenv_mandatory("QUOBYTE_API_USER")
@@ -48,14 +50,16 @@ PLUGIN_DIRECTORY = '/run/docker/plugins/'
 PLUGIN_SOCKET = PLUGIN_DIRECTORY + 'quobyte.sock'
 MOUNT_DIRECTORY = '/run/docker/quobyte/mnt'
 
+
 def mount_all(path):
     binary = "mount.quobyte"
     if MOUNT_QUOBYTE_PATH:
         binary = os.path.join(MOUNT_QUOBYTE_PATH, binary)
     mnt_cmd = (binary + " " + MOUNT_QUOBYTE_OPTIONS + " " +
-        QUOBYTE_REGISTRY + "/ " + MOUNT_DIRECTORY)
+               QUOBYTE_REGISTRY + "/ " + MOUNT_DIRECTORY)
     print mnt_cmd
     return os.system(mnt_cmd)
+
 
 def qmgmt(params):
     binary = "qmgmt"
@@ -70,14 +74,23 @@ def qmgmt(params):
     print "==", exitcode
     return exitcode == 0
 
+
 def volume_create(name, volume_config):
-    return qmgmt("volume create " + name + " root root " + volume_config + " 777")
+    return qmgmt(
+        "volume create " +
+        name +
+        " root root " +
+        volume_config +
+        " 777")
+
 
 def volume_delete(name):
     return qmgmt("volume delete -f " + name)
 
+
 def volume_exists(name):
     return qmgmt("volume resolve " + name)
+
 
 def is_mounted(mountpath):
     f = open('/proc/mounts')
@@ -85,6 +98,7 @@ def is_mounted(mountpath):
         if l.split()[1] == mountpath:
             return True
     return False
+
 
 class UDSServer(BaseHTTPServer.HTTPServer):
     address_family = socket.AF_UNIX
@@ -97,7 +111,8 @@ class UDSServer(BaseHTTPServer.HTTPServer):
             if os.path.exists(server_address):
                 raise
         self.socket = socket.socket(self.address_family, self.socket_type)
-        BaseHTTPServer.HTTPServer.__init__(self, server_address, RequestHandlerClass)
+        BaseHTTPServer.HTTPServer.__init__(
+            self, server_address, RequestHandlerClass)
 
     def server_bind(self):
         self.socket.bind(self.server_address)
@@ -118,109 +133,115 @@ class UDSServer(BaseHTTPServer.HTTPServer):
         ret = self.socket.accept()
         return ret[0], 'uds'
 
+
 class DockerHandler(BaseHTTPRequestHandler):
-  mount_paths = {}
+    mount_paths = {}
 
-  def get_request(self):
-      length = int(self.headers['content-length'])
-      return json.loads(self.rfile.read(length))
+    def get_request(self):
+        length = int(self.headers['content-length'])
+        return json.loads(self.rfile.read(length))
 
-  def respond(self, msg):
-      self.send_response(200)
-      self.send_header("Content-type", "application/vnd.docker.plugins.v1+json")
-      self.end_headers()
-      print "Responding with", json.dumps(msg)
-      self.wfile.write(json.dumps(msg))
- 
-  def do_POST(self):
-    if self.path == "/Plugin.Activate":
-      self.respond({"Implements": ["VolumeDriver"]})
+    def respond(self, msg):
+        self.send_response(200)
+        self.send_header(
+            "Content-type",
+            "application/vnd.docker.plugins.v1+json")
+        self.end_headers()
+        print "Responding with", json.dumps(msg)
+        self.wfile.write(json.dumps(msg))
 
-    elif self.path == "/VolumeDriver.Create":
-      request = self.get_request()
-      print request
+    def do_POST(self):
+        if self.path == "/Plugin.Activate":
+            self.respond({"Implements": ["VolumeDriver"]})
 
-      is_persistent = False
-      volume_config = DEFAULT_VOLUME_CONFIGURATION
+        elif self.path == "/VolumeDriver.Create":
+            request = self.get_request()
+            print request
 
-      if 'Opts' in request and request['Opts'] and 'persistent' in request['Opts']:
-        valuestr = request['Opts']['persistent']
-        is_persistent = eval(valuestr, {"__builtins__":None},{}) == True
-      if 'Opts' in request and request['Opts'] and 'volume_configuration' in request['Opts']:
-        volume_config = request['Opts']['volume_configuration']
+            is_persistent = False
+            volume_config = DEFAULT_VOLUME_CONFIGURATION
 
-      volume_create(request["Name"], volume_config)
+            if 'Opts' in request and request[
+                    'Opts'] and 'persistent' in request['Opts']:
+                valuestr = request['Opts']['persistent']
+                is_persistent = eval(valuestr, {"__builtins__": None}, {})
+            if 'Opts' in request and request[
+                    'Opts'] and 'volume_configuration' in request['Opts']:
+                volume_config = request['Opts']['volume_configuration']
 
-      mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
-      while True:
-          if os.path.exists(mountpoint):
-              break
-          print "Waiting for", mountpoint
-          time.sleep(1)
+            volume_create(request["Name"], volume_config)
 
-      self.respond({"Err": ""})
+            mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
+            while True:
+                if os.path.exists(mountpoint):
+                    break
+                print "Waiting for", mountpoint
+                time.sleep(1)
 
-    elif self.path == "/VolumeDriver.Remove":
-      request = self.get_request()
-      print request
-      if not volume_exists(request["Name"]):
-          self.respond({"Err": ""})
-          return
-      if volume_delete(request["Name"]):
-          self.respond({"Err": ""})
-      else:
-          self.respond({"Err": "Could not delete " + request["Name"]})          
+            self.respond({"Err": ""})
 
-    elif self.path == "/VolumeDriver.Path" or self.path == "/VolumeDriver.Mount":
-      request = self.get_request()
-      print request
-      mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
-      if os.path.exists(mountpoint):
-          self.respond({"Err": "", "Mountpoint": mountpoint})
-      else:
-          self.respond({"Err": "Not mounted: " + request["Name"]}) 
+        elif self.path == "/VolumeDriver.Remove":
+            request = self.get_request()
+            print request
+            if not volume_exists(request["Name"]):
+                self.respond({"Err": ""})
+                return
+            if volume_delete(request["Name"]):
+                self.respond({"Err": ""})
+            else:
+                self.respond({"Err": "Could not delete " + request["Name"]})
 
-    elif self.path == "/VolumeDriver.Get":
-      request = self.get_request()
-      print request
-      mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
-      if os.path.exists(mountpoint):
-          self.respond(
-            {"Volume": {"Name": request["Name"], "Mountpoint": mountpoint},
-             "Err": ""})
-      else:
-          self.respond({"Err": "Not mounted: " + request["Name"]}) 
+        elif self.path == "/VolumeDriver.Path" or self.path == "/VolumeDriver.Mount":
+            request = self.get_request()
+            print request
+            mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
+            if os.path.exists(mountpoint):
+                self.respond({"Err": "", "Mountpoint": mountpoint})
+            else:
+                self.respond({"Err": "Not mounted: " + request["Name"]})
 
-    elif self.path == "/VolumeDriver.Unmount":
-      request = self.get_request()
-      print request
-      self.respond({"Err": ""})
+        elif self.path == "/VolumeDriver.Get":
+            request = self.get_request()
+            print request
+            mountpoint = os.path.join(MOUNT_DIRECTORY, request["Name"])
+            if os.path.exists(mountpoint):
+                self.respond(
+                    {"Volume": {"Name": request["Name"], "Mountpoint": mountpoint},
+                     "Err": ""})
+            else:
+                self.respond({"Err": "Not mounted: " + request["Name"]})
 
-    elif self.path == "/VolumeDriver.List":
-      request = self.get_request()
-      print request
-      volumes = os.listdir(MOUNT_DIRECTORY)
-      result = [{"Name": v, "Mountpoint": os.path.join(MOUNT_DIRECTORY, v)} for v in volumes]
-      self.respond({"Volumes": result, "Err": ""})
+        elif self.path == "/VolumeDriver.Unmount":
+            request = self.get_request()
+            print request
+            self.respond({"Err": ""})
 
-    else:
-      print "Unknown API operation:", self.path
-      self.respond({"Err": "Unknown API operation: " + self.path})
+        elif self.path == "/VolumeDriver.List":
+            request = self.get_request()
+            print request
+            volumes = os.listdir(MOUNT_DIRECTORY)
+            result = [{"Name": v, "Mountpoint": os.path.join(
+                MOUNT_DIRECTORY, v)} for v in volumes]
+            self.respond({"Volumes": result, "Err": ""})
+
+        else:
+            print "Unknown API operation:", self.path
+            self.respond({"Err": "Unknown API operation: " + self.path})
 
 if __name__ == '__main__':
-     try:
-         os.makedirs(MOUNT_DIRECTORY)
-     except OSError, e:
-         if e.errno != 17:
-             raise e
-     try:
-         os.makedirs(PLUGIN_DIRECTORY)
-     except OSError, e:
-         if e.errno != 17:
-             raise e
-     if not is_mounted(MOUNT_DIRECTORY):
-         print "Mounting Quobyte namespace in", MOUNT_DIRECTORY 
-         mount_all(MOUNT_DIRECTORY)
-     server = UDSServer(PLUGIN_SOCKET, DockerHandler)
-     print 'Starting server, use <Ctrl-C> to stop'
-     server.serve_forever()
+    try:
+        os.makedirs(MOUNT_DIRECTORY)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+    try:
+        os.makedirs(PLUGIN_DIRECTORY)
+    except OSError as e:
+        if e.errno != 17:
+            raise e
+    if not is_mounted(MOUNT_DIRECTORY):
+        print "Mounting Quobyte namespace in", MOUNT_DIRECTORY
+        mount_all(MOUNT_DIRECTORY)
+    server = UDSServer(PLUGIN_SOCKET, DockerHandler)
+    print 'Starting server, use <Ctrl-C> to stop'
+    server.serve_forever()
