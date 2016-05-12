@@ -49,6 +49,21 @@ PLUGIN_SOCKET = PLUGIN_DIRECTORY + 'quobyte.sock'
 MOUNT_DIRECTORY = '/run/docker/quobyte/mnt'
 
 
+def read_optional_config():
+    global MOUNT_QUOBYTE_PATH
+    MOUNT_QUOBYTE_PATH = os.getenv("MOUNT_QUOBYTE_PATH")
+    global QMGMT_PATH
+    QMGMT_PATH = os.getenv("QMGMT_PATH")
+    options = os.getenv("MOUNT_QUOBYTE_OPTIONS")
+    if options:
+        global MOUNT_QUOBYTE_OPTIONS
+        MOUNT_QUOBYTE_OPTIONS = options
+    config = os.getenv("DEFAULT_VOLUME_CONFIGURATION")
+    if config:
+        global DEFAULT_VOLUME_CONFIGURATION
+        DEFAULT_VOLUME_CONFIGURATION = config
+
+
 def mount_all():
     binary = "mount.quobyte"
     if MOUNT_QUOBYTE_PATH:
@@ -147,7 +162,7 @@ class DockerHandler(BaseHTTPRequestHandler):
         print "Responding with", json.dumps(msg)
         self.wfile.write(json.dumps(msg))
 
-    def do_post(self):
+    def do_POST(self):
         print self.get_request()
         if self.path == "/Plugin.Activate":
             self.respond({"Implements": ["VolumeDriver"]})
@@ -216,6 +231,7 @@ class DockerHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    read_optional_config()
     try:
         os.makedirs(MOUNT_DIRECTORY)
     except OSError as error:
