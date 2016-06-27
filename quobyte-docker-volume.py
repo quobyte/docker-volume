@@ -169,11 +169,11 @@ class DockerHandler(BaseHTTPRequestHandler):
         elif self.path == "/VolumeDriver.Create":
             self.volume_driver_create()
         elif self.path == "/VolumeDriver.Remove":
-            self.volume_driver_mount()
+            self.volume_driver_remove()
         elif self.path == "/VolumeDriver.Path" or self.path == "/VolumeDriver.Mount":
             self.volume_driver_mount()
         elif self.path == "/VolumeDriver.Get":
-            self.volume_driver_list()
+            self.volume_driver_get()
         elif self.path == "/VolumeDriver.Unmount":
             self.respond({"Err": ""})
         elif self.path == "/VolumeDriver.List":
