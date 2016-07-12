@@ -8,7 +8,7 @@ Get the code
 
 ```
 $ go get -u github.com/quobyte/api
-$ go get -u github.com/quobyte/go-quobyte-docker
+$ go get -u github.com/quobyte/docker-volume
 ```
 
 ### Linux
