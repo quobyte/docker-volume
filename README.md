@@ -1,28 +1,60 @@
 # Quobyte volume plug-in for Docker
 
-Tested with `CentOS 7.2` and `Docker 1.10.3`. This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS).
+This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS).
+
+## Tested
+
+OS              | Docker Version
+--------------- | :------------:
+CentOS 7.2      |     1.10.3
+Ubuntu 16.04    |     1.11.2
+CoreOS 1097.0.0 |     1.11.2
 
 ## Build
 
 Get the code
 
 ```
-$ go get -u github.com/quobyte/api
 $ go get -u github.com/quobyte/docker-volume
 ```
 
 ### Linux
 
 ```
-$ go build -o docker-quobyte-plugin .
-$ cp quobyte-docker-plugin /usr/libexec/docker/docker-quobyte-plugin
+$ go build -o bin/docker-quobyte-plugin .
 ```
 
 ### OSX/MacOS
 
 ```
-$ GOOS=linux GOARCH=amd64 go build -o docker-quobyte-plugin
-$ cp quobyte-docker-plugin /usr/libexec/docker/docker-quobyte-plugin
+$ GOOS=linux GOARCH=amd64 go build -o bin/docker-quobyte-plugin .
+```
+
+### Docker
+
+```
+$ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/quobyte/docker-volume golang:1.6 go build -v -o bin/quobyte-docker-plugin
+```
+
+## Usage
+
+```
+$ bin/docker-quobyte-plugin -h
+Usage of /opt/bin/docker-quobyte-plugin:
+  -api string
+        URL to the API server(s) in the form host[:port][,host:port] or SRV record name (default "localhost:7860")
+  -group string
+        Group to create the unix socket (default "root")
+  -options string
+        Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
+  -password string
+        Password for the user to connect to the Quobyte API server (default "quobyte")
+  -path string
+        Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
+  -registry string
+        URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
+  -user string
+        User to connect to the Quobyte API server (default "root")
 ```
 
 ## Setup
@@ -35,22 +67,14 @@ This step is optional.
 $ qmgmt -u <api-url> user config add docker <email>
 ```
 
-### Set mandatory configuration in environment
+### systemd
 
-```
-$ export QUOBYTE_API_USER=docker
-$ export QUOBYTE_API_PASSWORD=...
-$ export QUOBYTE_API_URL=http://<host>:7860/
-# host[:port][,host:port] or SRV record name
-$ export QUOBYTE_REGISTRY=quobyte.corp
-```
-
-### Install systemd files Set the variables in systemd/docker-quobyte.env.sample
+Install systemd files and set your variables in systemd/docker-quobyte.env.sample
 
 ```
 $ cp systemd/docker-quobyte.env.sample /etc/quobyte/docker-quobyte.env
-$ cp docker-quobyte-plugin /usr/libexec/docker/
-$ cp systemd/* /lib/systemd/system
+$ cp bin/docker-quobyte-plugin /usr/local/bin/
+$ cp systemd/docker-quobyte-plugin.service /lib/systemd/system
 
 $ systemctl daemon-reload
 $ systemctl start docker-quobyte-plugin
