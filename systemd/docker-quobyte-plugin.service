@@ -2,8 +2,8 @@
 Description=Docker Quobyte Plugin
 Documentation=https://github.com/johscheuer/go-quobyte-docker
 Before=docker.service
-After=network.target docker-quobyte-plugin.socket
-Requires=docker-quobyte-plugin.socket docker.service
+After=network.target docker.service
+Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/quobyte/docker-quobyte.env
