@@ -7,7 +7,7 @@ Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/quobyte/docker-quobyte.env
-ExecStart=/usr/libexec/docker/docker-quobyte-plugin
+ExecStart=/usr/local/bin/docker-quobyte-plugin --user ${QUOBYTE_API_USER} --password ${QUOBYTE_API_PASSWORD} --api ${QUOBYTE_API_URL} --registry ${QUOBYTE_REGISTRY}
 
 [Install]
 WantedBy=multi-user.target
