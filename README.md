@@ -8,6 +8,7 @@ OS              | Docker Version
 --------------- | :------------:
 CentOS 7.2      |     1.10.3
 Ubuntu 16.04    |     1.11.2
+Ubuntu 16.04    |     1.12.0
 CoreOS 1097.0.0 |     1.11.2
 
 ## Build
@@ -21,19 +22,19 @@ $ go get -u github.com/quobyte/docker-volume
 ### Linux
 
 ```
-$ go build -o bin/docker-quobyte-plugin .
+$ go build -ldflags "-s -w" -o bin/docker-quobyte-plugin .
 ```
 
 ### OSX/MacOS
 
 ```
-$ GOOS=linux GOARCH=amd64 go build -o bin/docker-quobyte-plugin .
+$ GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o bin/docker-quobyte-plugin .
 ```
 
 ### Docker
 
 ```
-$ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/quobyte/docker-volume golang:1.6 go build -v -o bin/quobyte-docker-plugin
+$ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/quobyte/docker-volume golang:1.6 go build -v -ldflags "-s -w" -o bin/quobyte-docker-plugin
 ```
 
 ## Usage
