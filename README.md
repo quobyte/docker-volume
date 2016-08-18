@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/quobyte/docker-volume.svg?branch=master)](https://travis-ci.org/quobyte/docker-volume)
+
 # Quobyte volume plug-in for Docker
 
 This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS).
