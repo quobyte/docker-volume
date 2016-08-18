@@ -62,7 +62,7 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 	return volume.Response{Err: ""}
 }
 
-func (driver quobyteDriver) Mount(request volume.Request) volume.Response {
+func (driver quobyteDriver) Mount(request volume.MountRequest) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
 	mPoint := filepath.Join(driver.quobyteMount, request.Name)
@@ -78,7 +78,7 @@ func (driver quobyteDriver) Path(request volume.Request) volume.Response {
 	return volume.Response{Mountpoint: filepath.Join(driver.quobyteMount, request.Name)}
 }
 
-func (driver quobyteDriver) Unmount(request volume.Request) volume.Response {
+func (driver quobyteDriver) Unmount(request volume.UnmountRequest) volume.Response {
 	return volume.Response{}
 }
 
