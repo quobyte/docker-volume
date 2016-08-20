@@ -1,15 +1,24 @@
 language: go
-#sudo: required
-
 go:
-  - 1.7
-  - tip
-
+- 1.7
+- tip
 os:
-  - linux
-
+- linux
+env:
+  global:
+  - GOARCH=amd64
 install:
-  - go get -u .
-  - go build -ldflags "-s -w" -a -installsuffix cgo -o bin/docker-quobyte-plugin .
-
-
+- go get -u .
+- go fmt ./...
+- go vet $(go list ./...)
+- CGO_ENABLED=0 go build -ldflags "-s -w" -a -installsuffix cgo -o bin/docker-quobyte-plugin
+  .
+deploy:
+  provider: releases
+  api_key:
+    secure: WH/p2ZsIBcbMaNDP9un7WIH3wjpRCoT8gWCcqJf0Ki9Qm8c5OqyP0PY+bKwdaZXBxO6cbk6s2w8W6cto7W1CQh09RtIVt8E3s8IEHl5WTJr/NdipHj5Z5u80IwlreNfT5clRY+ToTpeO/CAUDEpBkIDo5brTXoPkgyLvOF/sjHjSbo2ETBoyZ17HvX+HzdCO0ZMHSISJfFmwenWCKQTGx3+jQcUCSzy84YyD/wSGOy3BUXmAGjPLttLNKYnH/tRzAPG2pwL6IhygwvObPhMJNPtjvPamMFjm7vrB6D5wmV2pDyc2QB2J0lRYaqjs6BHCbuuyjcvs6lVE98JykSqAm88ADzsi1HtqHGViyyxi13utmxc4rlwX7B5jrumhGNE+BX3o+hm/8RDvRRlgxc9TcuAx8gEr2RF7rUmc4jpssHQU1xc5ywVi0ioOAQGevHfdf8dugh7QengGOmfRAfkrU0WT6jspLMGps2JP021+PzYyKdq0rYeL/HnLZBiviiklZNmvFe4lhULVvKij0lKb/QOjij6bjyCvSM3jAqiak+7L0vhfxwscZOzIAqc9qr2EQoJXqHUnn+K6eqsAruZ6ZE4R13BWFYf5WQUGMq715U5G9bMCbw6YZq0WDa+lJomkj/oCduIuka34AzY4+GRoJxmb61s+6Bc6B3N9qCt6v34=
+  file: bin/docker-quobyte-plugin
+  skip_cleanup: true
+  on:
+    repo: quobyte/docker-volume
+    tags: true
