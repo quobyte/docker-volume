@@ -10,6 +10,11 @@ import (
 
 const quobyteID string = "quobyte"
 
+var (
+	version  string
+	revision string
+)
+
 func main() {
 	quobyteMountPath := flag.String("path", "/run/docker/quobyte/mnt", "Path where Quobyte is mounted on the host")
 	quobyteMountOptions := flag.String("options", "-o user_xattr", "Fuse options to be used when Quobyte is mounted")
@@ -20,7 +25,13 @@ func main() {
 	quobyteRegistry := flag.String("registry", "localhost:7861", "URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name")
 
 	group := flag.String("group", "root", "Group to create the unix socket")
+	showVersion := flag.Bool("version", false, "Shows version string")
 	flag.Parse()
+
+	if *showVersion {
+		log.Printf("Version: %s - Revision: %s\n", version, revision)
+		return
+	}
 
 	if err := os.MkdirAll(*quobyteMountPath, 0555); err != nil {
 		log.Println(err.Error())
