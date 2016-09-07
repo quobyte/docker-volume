@@ -43,7 +43,11 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		group = grp
 	}
 
-	if _, err := driver.client.CreateVolume(request.Name, user, group); err != nil {
+	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
+		Name:        request.Name,
+		RootUserID:  user,
+		RootGroupID: group,
+	}); err != nil {
 		return volume.Response{Err: err.Error()}
 	}
 
@@ -55,7 +59,7 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
 
-	if err := driver.client.DeleteVolumeByName(request.Name); err != nil {
+	if err := driver.client.DeleteVolumeByName(request.Name, ""); err != nil {
 		return volume.Response{Err: err.Error()}
 	}
 
