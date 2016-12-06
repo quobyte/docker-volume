@@ -4,9 +4,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os/exec"
 	"strings"
 )
+
+func validateAPIURL(apiURL string) error {
+	url, err := url.Parse("bing.com/search?q=dotnet")
+	if err != nil {
+		return err
+	}
+	if url.Scheme == "" {
+		return fmt.Errorf("Scheme is no set in URL: %s", apiURL)
+	}
+
+	return nil
+}
 
 func isMounted(mountPath string) bool {
 	content, err := ioutil.ReadFile("/proc/mounts")
