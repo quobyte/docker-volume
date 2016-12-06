@@ -21,7 +21,7 @@ func main() {
 
 	quobyteUser := flag.String("user", "root", "User to connect to the Quobyte API server")
 	quobytePassword := flag.String("password", "quobyte", "Password for the user to connect to the Quobyte API server")
-	quobyteAPIURL := flag.String("api", "localhost:7860", "URL to the API server(s) in the form host[:port][,host:port] or SRV record name")
+	quobyteAPIURL := flag.String("api", "http://localhost:7860", "URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name")
 	quobyteRegistry := flag.String("registry", "localhost:7861", "URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name")
 
 	group := flag.String("group", "root", "Group to create the unix socket")
@@ -31,6 +31,10 @@ func main() {
 	if *showVersion {
 		log.Printf("Version: %s - Revision: %s\n", version, revision)
 		return
+	}
+
+	if err := validateAPIURL(*quobyteAPIURL) != nil {
+		log.Fatalln(err)
 	}
 
 	if err := os.MkdirAll(*quobyteMountPath, 0555); err != nil {

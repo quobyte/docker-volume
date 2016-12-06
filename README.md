@@ -2,7 +2,7 @@
 
 # Quobyte volume plug-in for Docker
 
-This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS).
+This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS) for more information look at [docs/coreos.md](docs/coreos.md).
 
 ## Tested
 
@@ -45,7 +45,7 @@ $ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/q
 $ bin/docker-quobyte-plugin -h
 Usage of /opt/bin/docker-quobyte-plugin:
   -api string
-        URL to the API server(s) in the form host[:port][,host:port] or SRV record name (default "localhost:7860")
+        URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
   -group string
         Group to create the unix socket (default "root")
   -options string
