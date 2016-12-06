@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	if err := validateAPIURL(*quobyteAPIURL) != nil {
+	if err := validateAPIURL(*quobyteAPIURL); err != nil {
 		log.Fatalln(err)
 	}
 
