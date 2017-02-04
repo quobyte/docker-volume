@@ -21,6 +21,10 @@ Get the code
 $ go get -u github.com/quobyte/docker-volume
 ```
 
+### Dependency Management
+
+For the dependency management we use [golang dep](https://github.com/golang/dep)
+
 ### Linux
 
 ```
