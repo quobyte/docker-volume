@@ -10,7 +10,7 @@ import (
 )
 
 func validateAPIURL(apiURL string) error {
-	url, err := url.Parse("bing.com/search?q=dotnet")
+	url, err := url.Parse(apiURL)
 	if err != nil {
 		return err
 	}
