@@ -1,0 +1,10 @@
+{
+    "dependencies": {
+        "github.com/docker/go-plugins-helpers": {
+            "branch": "master"
+        },
+        "github.com/quobyte/api": {
+            "branch": "master"
+        }
+    }
+}

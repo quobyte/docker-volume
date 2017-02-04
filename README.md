@@ -4,6 +4,10 @@
 
 This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS) for more information look at [docs/coreos.md](docs/coreos.md).
 
+## Dependency Management
+
+We use [golang dep](https://github.com/golang/dep) as dependency manager.
+
 ## Tested
 
 OS              | Docker Version

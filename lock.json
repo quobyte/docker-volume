@@ -1,0 +1,78 @@
+{
+    "memo": "723c0b9ecbaa176e08fbd11aa42a7198bda63a5dba389ede6e630bf8271f890a",
+    "projects": [
+        {
+            "name": "github.com/Microsoft/go-winio",
+            "version": "v0.3.8",
+            "revision": "fff283ad5116362ca252298cfc9b95828956d85d",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/Sirupsen/logrus",
+            "version": "v0.11.0",
+            "revision": "d26492970760ca5d33129d2d799e34be5c4782eb",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/coreos/go-systemd",
+            "version": "v14",
+            "revision": "48702e0da86bd25e76cfef347e2adeb434a0d0a6",
+            "packages": [
+                "activation"
+            ]
+        },
+        {
+            "name": "github.com/docker/go-connections",
+            "version": "v0.2.1",
+            "revision": "990a1a1a70b0da4c4cb70e117971a4f0babfbf1a",
+            "packages": [
+                "sockets"
+            ]
+        },
+        {
+            "name": "github.com/docker/go-plugins-helpers",
+            "branch": "master",
+            "revision": "8af45ff6ad5b7608853de51133c33e6638b02134",
+            "packages": [
+                "volume"
+            ]
+        },
+        {
+            "name": "github.com/opencontainers/runc",
+            "version": "v0.1.1",
+            "revision": "baf6536d6259209c3edfa2b22237af82942d3dfa",
+            "packages": [
+                "libcontainer/user"
+            ]
+        },
+        {
+            "name": "github.com/quobyte/api",
+            "branch": "master",
+            "revision": "bf713b5a4333f44504fa1ce63690de45cfed6413",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "golang.org/x/net",
+            "branch": "master",
+            "revision": "41bba8d80bbfab43231ffdf4c210037baae5f6a3",
+            "packages": [
+                "proxy"
+            ]
+        },
+        {
+            "name": "golang.org/x/sys",
+            "branch": "master",
+            "revision": "7a6e5648d140666db5d920909e082ca00a87ba2c",
+            "packages": [
+                "unix",
+                "windows"
+            ]
+        }
+    ]
+}

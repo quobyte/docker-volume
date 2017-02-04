@@ -4,6 +4,8 @@ import (
 	"flag"
 	"log"
 	"os"
+	"os/user"
+	"strconv"
 
 	"github.com/docker/go-plugins-helpers/volume"
 )
@@ -48,5 +50,15 @@ func main() {
 
 	qDriver := newQuobyteDriver(*quobyteAPIURL, *quobyteUser, *quobytePassword, *quobyteMountPath)
 	handler := volume.NewHandler(qDriver)
-	log.Println(handler.ServeUnix(*group, quobyteID))
+
+	g, err := user.LookupGroup(*group)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	gid, err := strconv.Atoi(g.Gid)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(handler.ServeUnix(quobyteID, gid))
 }
