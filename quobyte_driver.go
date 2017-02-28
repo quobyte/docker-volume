@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/docker/go-plugins-helpers/volume"
@@ -49,7 +50,10 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		RootGroupID: group,
 	}); err != nil {
 		log.Println(err)
-		return volume.Response{Err: err.Error()}
+
+		if !strings.Contains(err.Error(), "ENTITY_EXISTS_ALREADY/POSIX_ERROR_NONE") {
+			return volume.Response{Err: err.Error()}
+		}
 	}
 
 	return volume.Response{Err: ""}
