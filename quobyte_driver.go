@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
 	quobyte_api "github.com/quobyte/api"
@@ -56,6 +57,12 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		}
 	}
 
+	mPoint := filepath.Join(driver.quobyteMount, request.Name)
+	log.Printf("Validate mounting volume %s on %s\n", request.Name, mPoint)
+	if err := check_mount_point(mPoint); err != nil {
+		return volume.Response{Err: err.Error()}
+	}
+
 	return volume.Response{Err: ""}
 }
 
@@ -72,16 +79,30 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 	return volume.Response{Err: ""}
 }
 
+func check_mount_point(mPoint string) error {
+	// We try it 5 times ~5 seconds -> move this into config?
+	max_tries := 5
+	tries := 0
+	var mount_error error
+	for tries <= max_tries {
+		mount_error = nil
+		if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
+			mount_error = err
+		} else {
+			return nil
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	return mount_error
+}
+
 func (driver quobyteDriver) Mount(request volume.MountRequest) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
 	mPoint := filepath.Join(driver.quobyteMount, request.Name)
 	log.Printf("Mounting volume %s on %s\n", request.Name, mPoint)
-	if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
-		log.Println(err)
-		return volume.Response{Err: fmt.Sprintf("%v not mounted", mPoint)}
-	}
-
 	return volume.Response{Err: "", Mountpoint: mPoint}
 }
 
