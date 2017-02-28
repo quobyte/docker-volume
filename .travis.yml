@@ -1,5 +1,6 @@
 language: go
 go:
+- 1.8
 - 1.7
 - tip
 os:
@@ -8,9 +9,7 @@ env:
   global:
   - GOARCH=amd64
 install:
-- go get -u .
 - go fmt ./...
-- go vet $(go list ./...)
 - CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match) -X main.revision=$(git log -1 --format=%h)" -a -installsuffix cgo -o bin/docker-quobyte-plugin
   .
 

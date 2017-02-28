@@ -1,0 +1,10 @@
+{
+    "dependencies": {
+        "github.com/docker/go-plugins-helpers": {
+            "revision": "77bfeec724ac5ae33f6a820c7ee6c98301b5a121"
+        },
+        "github.com/quobyte/api": {
+            "branch": "master"
+        }
+    }
+}
