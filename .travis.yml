@@ -11,7 +11,8 @@ env:
 install:
 - go fmt ./...
 - CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match) -X main.revision=$(git log -1 --format=%h)" -a -installsuffix cgo -o bin/docker-quobyte-plugin
-  .
+
+script: go test ./
 
 before_deploy:
   - tar cfvz docker-quobyte-plugin.tar.gz bin systemd

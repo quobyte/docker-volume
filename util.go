@@ -48,6 +48,7 @@ func isMounted(mountPath string) bool {
 func mountAll(mountQuobyteOptions, quobyteRegistry, mountQuobytePath string) {
 	cmdStr := fmt.Sprintf("mount %s -t quobyte %s %s", mountQuobyteOptions, fmt.Sprintf("%s/", quobyteRegistry), mountQuobytePath)
 	if out, err := exec.Command("/bin/sh", "-c", cmdStr).CombinedOutput(); err != nil {
+		log.Println(err)
 		log.Fatalln(string(out))
 	}
 }

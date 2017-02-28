@@ -48,6 +48,7 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		RootUserID:  user,
 		RootGroupID: group,
 	}); err != nil {
+		log.Println(err)
 		return volume.Response{Err: err.Error()}
 	}
 
@@ -60,6 +61,7 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 	defer driver.m.Unlock()
 
 	if err := driver.client.DeleteVolumeByName(request.Name, ""); err != nil {
+		log.Println(err)
 		return volume.Response{Err: err.Error()}
 	}
 
@@ -72,6 +74,7 @@ func (driver quobyteDriver) Mount(request volume.MountRequest) volume.Response {
 	mPoint := filepath.Join(driver.quobyteMount, request.Name)
 	log.Printf("Mounting volume %s on %s\n", request.Name, mPoint)
 	if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
+		log.Println(err)
 		return volume.Response{Err: fmt.Sprintf("%v not mounted", mPoint)}
 	}
 
@@ -93,6 +96,7 @@ func (driver quobyteDriver) Get(request volume.Request) volume.Response {
 	mPoint := filepath.Join(driver.quobyteMount, request.Name)
 
 	if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
+		log.Println(err)
 		return volume.Response{Err: fmt.Sprintf("%v not mounted", mPoint)}
 	}
 
@@ -106,6 +110,7 @@ func (driver quobyteDriver) List(request volume.Request) volume.Response {
 	var vols []*volume.Volume
 	files, err := ioutil.ReadDir(driver.quobyteMount)
 	if err != nil {
+		log.Println(err)
 		return volume.Response{Err: err.Error()}
 	}
 
