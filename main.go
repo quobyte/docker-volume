@@ -25,6 +25,8 @@ func main() {
 	quobyteRegistry := flag.String("registry", "localhost:7861", "URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name")
 
 	group := flag.String("group", "root", "Group to create the unix socket")
+	maxWaitTime := flag.Float64("max-wait-time", 30, "Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error")
+	maxFSChecks := flag.Int("max-fs-checks", 5, "Maximimum number of filesystem checks when a Volume is created before returning an error")
 	showVersion := flag.Bool("version", false, "Shows version string")
 	flag.Parse()
 
@@ -46,7 +48,7 @@ func main() {
 		mountAll(*quobyteMountOptions, *quobyteRegistry, *quobyteMountPath)
 	}
 
-	qDriver := newQuobyteDriver(*quobyteAPIURL, *quobyteUser, *quobytePassword, *quobyteMountPath)
+	qDriver := newQuobyteDriver(*quobyteAPIURL, *quobyteUser, *quobytePassword, *quobyteMountPath, *maxFSChecks, *maxWaitTime)
 	handler := volume.NewHandler(qDriver)
 
 	log.Println(handler.ServeUnix(*group, quobyteID))
