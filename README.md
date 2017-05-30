@@ -2,7 +2,7 @@
 
 # Quobyte volume plug-in for Docker
 
-This plugin allows you to use [Quobyte](www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS) for more information look at [docs/coreos.md](docs/coreos.md).
+This plugin allows you to use [Quobyte](https://www.quobyte.com) with Docker without installing the Quobyte client on the host system (e.q. Rancher/CoreOS) for more information look at [docs/coreos.md](docs/coreos.md).
 
 ## Tested
 
