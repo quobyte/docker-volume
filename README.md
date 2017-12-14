@@ -83,9 +83,9 @@ Usage of bin/docker-quobyte-plugin:
 ### Create a volume
 
 ```
-$ docker volume create --driver quobyte --name <volumename>
+$ docker volume create --driver quobyte --name <volumename> --opt tenant_id=<your Quobyte tenant_id>
 # Set user and group of the volume
-$ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker
+$ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker --opt tenant_id=<your Quobyte tenant_id>
 ```
 
 ### Delete a volume
