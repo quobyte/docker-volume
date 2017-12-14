@@ -51,7 +51,7 @@ $ systemctl status docker-quobyte-plugin
 
 ```
 $ bin/docker-quobyte-plugin -h
-Usage of docker-quobyte-plugin:
+Usage of bin/docker-quobyte-plugin:
   -api string
       URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
   -configuration_name string
@@ -71,7 +71,7 @@ Usage of docker-quobyte-plugin:
   -registry string
       URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
   -tenant_id string
-      Id of the Quobyte tenant in whose domain the operation takes place (default "default")
+      Id of the Quobyte tenant in whose domain the operation takes place (default "no default")
   -user string
       User to connect to the Quobyte API server (default "root")
   -version

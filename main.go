@@ -24,7 +24,7 @@ func main() {
 	quobyteConfigName := flag.String("configuration_name", "BASE", "Name of the volume configuration of new volumes")
 	quobyteAPIURL := flag.String("api", "http://localhost:7860", "URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name")
 	quobyteRegistry := flag.String("registry", "localhost:7861", "URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name")
-	quobyteTenantId := flag.String("tenant_id", "default", "Id of the Quobyte tenant in whose domain the operation takes place")
+	quobyteTenantId := flag.String("tenant_id", "no default", "Id of the Quobyte tenant in whose domain the operation takes place")
 
 	group := flag.String("group", "root", "Group to create the unix socket")
 	maxWaitTime := flag.Float64("max-wait-time", 30, "Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error")

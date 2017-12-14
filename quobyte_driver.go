@@ -20,15 +20,19 @@ type quobyteDriver struct {
 	m            *sync.Mutex
 	maxFSChecks  int
 	maxWaitTime  float64
+	tenantID     string
+	configName   string
 }
 
-func newQuobyteDriver(apiURL string, username string, password string, quobyteMount string, maxFSChecks int, maxWaitTime float64, configName string, tenantId string) quobyteDriver {
+func newQuobyteDriver(apiURL string, username string, password string, quobyteMount string, maxFSChecks int, maxWaitTime float64, fconfigName string, fTenantID string) quobyteDriver {
 	driver := quobyteDriver{
 		client:       quobyte_api.NewQuobyteClient(apiURL, username, password),
 		quobyteMount: quobyteMount,
 		m:            &sync.Mutex{},
 		maxFSChecks:  maxFSChecks,
 		maxWaitTime:  maxWaitTime,
+		tenantID:     fTenantID,
+		configName:   fconfigName,
 	}
 
 	return driver
@@ -40,9 +44,9 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	defer driver.m.Unlock()
 
 	user, group := "root", "root"
-	configuration_name := "BASE"
-	retry_policy := "INTERACTIVE"
-	tenant_id := "default"
+	configurationName := "BASE"
+	retryPolicy := "INTERACTIVE"
+	tenantID := "default"
 
 	if usr, ok := request.Options["user"]; ok {
 		user = usr
@@ -53,20 +57,22 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	}
 
 	if conf, ok := request.Options["configuration_name"]; ok {
-		configuration_name = conf
+		configurationName = conf
 	}
 
 	if tenant, ok := request.Options["tenant_id"]; ok {
-		tenant_id = tenant
+		tenantID = tenant
+	} else {
+		return volume.Response{Err: "No tenant_id given, cannot create a new volume."}
 	}
 
 	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
 		Name:              request.Name,
 		RootUserID:        user,
 		RootGroupID:       group,
-		ConfigurationName: configuration_name,
-		TenantID:          tenant_id,
-		Retry:             retry_policy,
+		ConfigurationName: configurationName,
+		TenantID:          tenantID,
+		Retry:             retryPolicy,
 	}); err != nil {
 		log.Println(err)
 
@@ -89,12 +95,12 @@ func (driver quobyteDriver) checkMountPoint(mPoint string) error {
 
 	backoff := 1
 	tries := 0
-	var mount_error error
+	var mountError error
 	for tries <= driver.maxFSChecks {
-		mount_error = nil
+		mountError = nil
 		if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
 			log.Printf("Unsuccessful Filesystem Check for %s after %d tries", mPoint, tries)
-			mount_error = err
+			mountError = err
 		} else {
 			return nil
 		}
@@ -102,13 +108,13 @@ func (driver quobyteDriver) checkMountPoint(mPoint string) error {
 		time.Sleep(time.Duration(backoff) * time.Second)
 		if time.Since(start).Seconds() > driver.maxWaitTime {
 			log.Printf("Abort checking mount point do to time out after %f\n", driver.maxWaitTime)
-			return mount_error
+			return mountError
 		}
 
 		backoff *= 2
 	}
 
-	return mount_error
+	return mountError
 }
 
 func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
