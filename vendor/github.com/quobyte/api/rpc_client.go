@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
@@ -92,6 +93,7 @@ func (client QuobyteClient) sendRequest(method string, request interface{}, resp
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Sending JsonRPC message: %[1]s \n", message)
 	req, err := http.NewRequest("POST", client.url, bytes.NewBuffer(message))
 	if err != nil {
 		return err

@@ -22,7 +22,7 @@ type quobyteDriver struct {
 	maxWaitTime  float64
 }
 
-func newQuobyteDriver(apiURL string, username string, password string, quobyteMount string, maxFSChecks int, maxWaitTime float64) quobyteDriver {
+func newQuobyteDriver(apiURL string, username string, password string, quobyteMount string, maxFSChecks int, maxWaitTime float64, configName string, tenantId string) quobyteDriver {
 	driver := quobyteDriver{
 		client:       quobyte_api.NewQuobyteClient(apiURL, username, password),
 		quobyteMount: quobyteMount,
@@ -40,6 +40,9 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	defer driver.m.Unlock()
 
 	user, group := "root", "root"
+	configuration_name := "BASE"
+	retry_policy := "INTERACTIVE"
+	tenant_id := "default"
 
 	if usr, ok := request.Options["user"]; ok {
 		user = usr
@@ -49,10 +52,21 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		group = grp
 	}
 
+	if conf, ok := request.Options["configuration_name"]; ok {
+		configuration_name = conf
+	}
+
+	if tenant, ok := request.Options["tenant_id"]; ok {
+		tenant_id = tenant
+	}
+
 	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
-		Name:        request.Name,
-		RootUserID:  user,
-		RootGroupID: group,
+		Name:              request.Name,
+		RootUserID:        user,
+		RootGroupID:       group,
+		ConfigurationName: configuration_name,
+		TenantID:          tenant_id,
+		Retry:             retry_policy,
 	}); err != nil {
 		log.Println(err)
 

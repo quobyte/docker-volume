@@ -9,11 +9,13 @@ type CreateVolumeRequest struct {
 	ConfigurationName string   `json:"configuration_name,omitempty"`
 	AccessMode        uint32   `json:"access_mode,string,omitempty"`
 	TenantID          string   `json:"tenant_id,omitempty"`
+	Retry             string   `json:"retry,omitempty"`
 }
 
 type resolveVolumeNameRequest struct {
 	VolumeName   string `json:"volume_name,omitempty"`
 	TenantDomain string `json:"tenant_domain,omitempty"`
+	Retry        string `json:"retry,omitempty"`
 }
 
 type volumeUUID struct {
@@ -22,6 +24,7 @@ type volumeUUID struct {
 
 type getClientListRequest struct {
 	TenantDomain string `json:"tenant_domain,omitempty"`
+	Retry        string `json:"retry,omitempty"`
 }
 
 type GetClientListResponse struct {

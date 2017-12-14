@@ -26,7 +26,7 @@ tar xfz docker-quobyte-plugin.tar.gz
 
 ### Create a user in Quobyte for the plug-in:
 
-This step is optional.
+This step is optional and should only be used if Quobytes build-in user database is used.
 
 ```
 $ qmgmt -u <api-url> user config add docker <email>
@@ -51,21 +51,31 @@ $ systemctl status docker-quobyte-plugin
 
 ```
 $ bin/docker-quobyte-plugin -h
-Usage of /opt/bin/docker-quobyte-plugin:
+Usage of docker-quobyte-plugin:
   -api string
-        URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
+      URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
+  -configuration_name string
+      Name of the volume configuration of new volumes (default "BASE")
   -group string
-        Group to create the unix socket (default "root")
+      Group to create the unix socket (default "root")
+  -max-fs-checks int
+      Maximimum number of filesystem checks when a Volume is created before returning an error (default 5)
+  -max-wait-time float
+      Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error (default 30)
   -options string
-        Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
+      Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
   -password string
-        Password for the user to connect to the Quobyte API server (default "quobyte")
+      Password for the user to connect to the Quobyte API server (default "quobyte")
   -path string
-        Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
+      Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
   -registry string
-        URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
+      URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
+  -tenant_id string
+      Id of the Quobyte tenant in whose domain the operation takes place (default "default")
   -user string
-        User to connect to the Quobyte API server (default "root")
+      User to connect to the Quobyte API server (default "root")
+  -version
+      Shows version string
 ```
 
 ## Examples

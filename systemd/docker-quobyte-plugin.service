@@ -1,13 +1,13 @@
 [Unit]
 Description=Docker Quobyte Plugin
-Documentation=https://github.com/johscheuer/go-quobyte-docker
-Before=docker.service
+Documentation=https://github.com/quobyte/docker-volume
+
 After=network.target docker.service
 Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/quobyte/docker-quobyte.env
-ExecStart=/usr/local/bin/docker-quobyte-plugin --user ${QUOBYTE_API_USER} --password ${QUOBYTE_API_PASSWORD} --api ${QUOBYTE_API_URL} --registry ${QUOBYTE_REGISTRY}
+ExecStart=/usr/local/bin/docker-quobyte-plugin --user ${QUOBYTE_API_USER} --password ${QUOBYTE_API_PASSWORD} --api ${QUOBYTE_API_URL} --registry ${QUOBYTE_REGISTRY} --configuration_name ${QUOBYTE_CONFIGURATION_NAME}
 
 [Install]
 WantedBy=multi-user.target
