@@ -44,26 +44,18 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	defer driver.m.Unlock()
 
 	user, group := "root", "root"
-	configurationName := "BASE"
+	configurationName := driver.configName
 	retryPolicy := "INTERACTIVE"
-	tenantID := "default"
+	tenantID := driver.tenantID
 
 	if usr, ok := request.Options["user"]; ok {
 		user = usr
 	}
-
 	if grp, ok := request.Options["group"]; ok {
 		group = grp
 	}
-
 	if conf, ok := request.Options["configuration_name"]; ok {
 		configurationName = conf
-	}
-
-	if tenant, ok := request.Options["tenant_id"]; ok {
-		tenantID = tenant
-	} else {
-		return volume.Response{Err: "No tenant_id given, cannot create a new volume."}
 	}
 
 	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
@@ -122,7 +114,7 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
 
-	if err := driver.client.DeleteVolumeByName(request.Name, ""); err != nil {
+	if err := driver.client.DeleteVolumeByName(request.Name, driver.tenantID); err != nil {
 		log.Println(err)
 		return volume.Response{Err: err.Error()}
 	}

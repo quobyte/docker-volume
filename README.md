@@ -47,48 +47,77 @@ $ systemctl enable docker-quobyte-plugin
 $ systemctl status docker-quobyte-plugin
 ```
 
-### Usage
+### Configuration
+
+Configuration is done mainly through the systemd environment file:
 
 ```
-$ bin/docker-quobyte-plugin -h
+# Maximum number of filesystem checks when a Volume is created before returning an error
+MAX_FS_CHECKS=5
+# Maximum wait time for filesystem checks to complete when a Volume is created before returning an error
+MAX_WAIT_TIME=30
+# Group to create the unix socket
+SOCKET_GROUP=root
+QUOBYTE_API_URL=http://localhost:7860
+QUOBYTE_API_PASSWORD=quobyte
+QUOBYTE_API_USER=admin
+QUOBYTE_MOUNT_PATH=/run/docker/quobyte/mnt
+QUOBYTE_MOUNT_OPTIONS=-o user_xattr
+QUOBYTE_REGISTRY=localhost:7861
+# ID of the Quobyte tenant in whose domain volumes are managed by this plugin
+QUOBYTE_TENANT_ID=replace_me
+# Default volume config for new volumes, can be overridden via --opt flag 'configuration_name'
+QUOBYTE_VOLUME_CONFIG_NAME=BASE
+```
+
+### Usage
+
+The cli allows passing all options.:
+
+```
+$ bin/docker-quobyte-plugin  -h
 Usage of bin/docker-quobyte-plugin:
   -api string
-      URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
+        URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
   -configuration_name string
-      Name of the volume configuration of new volumes (default "BASE")
+        Name of the volume configuration of new volumes (default "BASE")
   -group string
-      Group to create the unix socket (default "root")
+        Group to create the unix socket (default "root")
   -max-fs-checks int
-      Maximimum number of filesystem checks when a Volume is created before returning an error (default 5)
+        Maximimum number of filesystem checks when a Volume is created before returning an error (default 5)
   -max-wait-time float
-      Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error (default 30)
+        Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error (default 64)
   -options string
-      Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
+        Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
   -password string
-      Password for the user to connect to the Quobyte API server (default "quobyte")
+        Password for the user to connect to the Quobyte API server (default "quobyte")
   -path string
-      Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
+        Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
   -registry string
-      URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
+        URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
   -tenant_id string
-      Id of the Quobyte tenant in whose domain the operation takes place (default "no default")
+        Id of the Quobyte tenant in whose domain the operation takes place (default "NO-DEFAULT-CHANGE-ME")
   -user string
-      User to connect to the Quobyte API server (default "root")
+        User to connect to the Quobyte API server (default "admin")
   -version
-      Shows version string
+        Shows version string
 ```
+ __Please note__ that using the environment file for setting the password is strongly encouraged over using the cli parameter.
+
 
 ## Examples
 
 ### Create a volume
 
 ```
-$ docker volume create --driver quobyte --name <volumename> --opt tenant_id=<your Quobyte tenant_id>
-# Set user and group of the volume
-$ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker --opt tenant_id=<your Quobyte tenant_id>
+$ docker volume create --driver quobyte --name <volumename> 
+# Set user, group and a non default volume configuration for the new volume
+$ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker --opt configuration_name=SSD_ONLY
 ```
 
 ### Delete a volume
+
+__Important__: Be careful when using this. The volume removal allows removing any volume accessible in the configured tenant!
 
 ```
 $ docker volume rm <volumename>
