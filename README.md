@@ -72,14 +72,38 @@ QUOBYTE_VOLUME_CONFIG_NAME=BASE
 
 ### Usage
 
-The cli is faily simple:
+The cli allows passing all options.:
 
 ```
-$ bin/docker-quobyte-plugin -h
+$ bin/docker-quobyte-plugin  -h
 Usage of bin/docker-quobyte-plugin:
+  -api string
+        URL to the API server(s) in the form http(s)://host[:port][,host:port] or SRV record name (default "http://localhost:7860")
+  -configuration_name string
+        Name of the volume configuration of new volumes (default "BASE")
+  -group string
+        Group to create the unix socket (default "root")
+  -max-fs-checks int
+        Maximimum number of filesystem checks when a Volume is created before returning an error (default 5)
+  -max-wait-time float
+        Maximimum wait time for filesystem checks to complete when a Volume is created before returning an error (default 64)
+  -options string
+        Fuse options to be used when Quobyte is mounted (default "-o user_xattr")
+  -password string
+        Password for the user to connect to the Quobyte API server (default "quobyte")
+  -path string
+        Path where Quobyte is mounted on the host (default "/run/docker/quobyte/mnt")
+  -registry string
+        URL to the registry server(s) in the form of host[:port][,host:port] or SRV record name (default "localhost:7861")
+  -tenant_id string
+        Id of the Quobyte tenant in whose domain the operation takes place (default "NO-DEFAULT-CHANGE-ME")
+  -user string
+        User to connect to the Quobyte API server (default "admin")
   -version
-      Shows version string
+        Shows version string
 ```
+ __Please note__ that using the environment file for setting the password is strongly encouraged over using the cli parameter.
+
 
 ## Examples
 
@@ -87,7 +111,7 @@ Usage of bin/docker-quobyte-plugin:
 
 ```
 $ docker volume create --driver quobyte --name <volumename> 
-# Set user, group and specific volume configuration for the new volume
+# Set user, group and a non default volume configuration for the new volume
 $ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker --opt configuration_name=SSD_ONLY
 ```
 
