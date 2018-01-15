@@ -27,7 +27,7 @@ $ docker run -d --name quobyte-client --privileged \
   -p 55000:55000 \
   -v /mnt/quobyte:/quobyte:shared \
   -h $(hostname -f) \
-  quay.io/quobyte/quobyte-client:latest
+  quay.io/quobyte/quobyte-client:1.4
 
 # Validate mount
 $ mount | grep quobyte

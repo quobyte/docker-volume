@@ -49,7 +49,7 @@ $ systemctl status docker-quobyte-plugin
 
 ### Configuration
 
-Configuration is done mainly through the systemd environment file:
+Configuration is done mainly through the systemd environment file (please note that the QUOBYTE_MOUNT_PATH is required to match the mount point of the Quobyte Clients Docker volume mount point):
 
 ```
 # Maximum number of filesystem checks when a Volume is created before returning an error
