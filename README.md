@@ -53,6 +53,8 @@ $ systemctl enable docker-quobyte-plugin
 $ systemctl status docker-quobyte-plugin
 ```
 
+Also ensure that the `"MountFlags=slave"` option is not active in the docker systemd unit file, as noted in the Quobyte manual container setup section.
+
 ### Configuration
 
 Configuration is done mainly through the systemd environment file (please note that the QUOBYTE_MOUNT_PATH is required to match the mount point of the Quobyte Clients Docker volume mount point):
