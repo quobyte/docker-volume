@@ -23,10 +23,10 @@ Using a locally installed client works fine, too, if this type of installation i
 
 ### Binary
 
-Download the binary and the systemd files from the [releases](https://github.com/quobyte/docker-volume/releases) page. To download version `1.1` of this plugin run the following step:
+Download the latest binary and the systemd files from the [releases](https://github.com/quobyte/docker-volume/releases) page. For example, in order to download version `1.3.1` of this plugin run the following step:
 
 ```bash
-curl -LO https://github.com/quobyte/docker-volume/releases/download/v1.1/docker-quobyte-plugin.tar.gz
+curl -LO https://github.com/quobyte/docker-volume/releases/download/v1.3.1/docker-quobyte-plugin.tar.gz
 tar xfz docker-quobyte-plugin.tar.gz
 ```
 
