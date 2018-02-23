@@ -174,3 +174,23 @@ $ GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o bin/docker-quobyte-plugin
 ```
 $ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/quobyte/docker-volume golang:1.8 go build -v -ldflags "-s -w" -o bin/quobyte-docker-plugin
 ```
+
+## Troubleshooting
+
+Common issues or pitfalls.
+
+#### Plugin creates volumes but shows 'no such file or directory' error
+
+##### Reason
+The Docker Quobyte plugin can successfully access the backend and create the volume but the new volume is not shown in the plugins mount point.
+
+##### Solution
+In this case ensure that the Quobyte client mount on the plugins host is working properly. This means ensuring the Quobyte client is running, can contact the registry service and can access the volumes of the tenant used by the Docker Quobyte plugin. If IP based access control is used ensure the host belongs to the IP address range the Quobyte tenant is restricted to.
+
+#### Plugin logs shows "... invalid character '<' looking for beginning of value"
+
+##### Reason
+The API service used by the plugin does not return JsonRPC data.
+
+##### Solution
+Check the Docker Quobyte plugins API settings. Either the configured API URL/port is wrong, and the plugin connects to the wrong service/port, or the authentication to the API service uses incorrect userid/password values.
