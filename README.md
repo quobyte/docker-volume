@@ -113,6 +113,16 @@ Usage of bin/docker-quobyte-plugin:
  __Please note__ that using the environment file for setting the password is strongly encouraged over using the cli parameter.
 
 
+The following plugin specific options can be injected through the docker client:
+
+```
+  --opt user=<default user for the given volume>
+  --opt group=<default group for the given volume>
+  --opt configuration_name=<volume configuration name>
+  --opt tenant_id=<tenant id for the given volume operation>
+```
+
+
 ## Examples
 
 ### Create a volume

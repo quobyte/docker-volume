@@ -57,6 +57,9 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	if conf, ok := request.Options["configuration_name"]; ok {
 		configurationName = conf
 	}
+	if tenant, ok := request.Options["tenant_id"]; ok {
+		tenantID = tenant
+	}
 
 	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
 		Name:              request.Name,
