@@ -204,3 +204,19 @@ The API service used by the plugin does not return JsonRPC data.
 
 ##### Solution
 Check the Docker Quobyte plugins API settings. Either the configured API URL/port is wrong, and the plugin connects to the wrong service/port, or the authentication to the API service uses incorrect userid/password values.
+
+#### Updates in a volume take several seconds to show up in another mount of that volume
+
+##### Reason
+This may be caused by metadata caching.
+
+##### Solution
+Disable metadata caching in the volume configuration of the given volume, e.g. by setting:
+
+```
+  metadata_cache_configuration {
+    cache_ttl_ms: 0
+    negative_cache_ttl_ms: 0
+    enable_write_back_cache: false
+  }
+```
