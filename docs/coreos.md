@@ -19,6 +19,12 @@ Create a directory to mount quobyte.
 $ sudo mkdir /mnt/quobyte
 ```
 
+Ensure a FUSE configuration exists at the path /etc/fuse.conf and that it contains the option `user_allow_other`. If this config does not exist run:
+
+```
+echo "user_allow_other" >> /etc/fuse.conf
+```
+
 Now mount Quobyte with Docker. If the command below fails use `-h $(hostname)` instead of `-h $(hostname -f)`.
 
 ```
