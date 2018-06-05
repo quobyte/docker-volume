@@ -189,7 +189,7 @@ $ docker run --rm -v "$GOPATH":/work -e "GOPATH=/work" -w /work/src/github.com/q
 
 Common issues or pitfalls.
 
-#### Plugin creates volumes but shows 'no such file or directory' error
+#### Plugin creates volumes but shows 'no such file or directory' or 'operation not permitted' error
 
 ##### Reason
 The Docker Quobyte plugin can successfully access the backend and create the volume but the new volume is not shown in the plugins mount point.

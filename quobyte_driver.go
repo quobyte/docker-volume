@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
 	quobyte_api "github.com/quobyte/api"
@@ -86,30 +85,19 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 }
 
 func (driver quobyteDriver) checkMountPoint(mPoint string) error {
-	start := time.Now()
-
-	backoff := 1
-	tries := 0
-	var mountError error
-	for tries <= driver.maxFSChecks {
-		mountError = nil
-		if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
-			log.Printf("Unsuccessful Filesystem Check for %s after %d tries", mPoint, tries)
-			mountError = err
-		} else {
-			return nil
-		}
-
-		time.Sleep(time.Duration(backoff) * time.Second)
-		if time.Since(start).Seconds() > driver.maxWaitTime {
-			log.Printf("Abort checking mount point do to time out after %f\n", driver.maxWaitTime)
-			return mountError
-		}
-
-		backoff *= 2
+	// Trigger volume list refresh
+	mkdErr := os.Mkdir(mPoint, 0755)
+	if !os.IsExist(mkdErr) {
+		// we expected ErrExist, everything else is an error
+		return mkdErr
 	}
-
-	return mountError
+	// Verify volume is available
+	_, statErr := os.Stat(mPoint)
+	if statErr != nil {
+		return statErr
+	}
+	log.Printf("Validated new volume ok: %s\n", mPoint)
+	return nil
 }
 
 func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
