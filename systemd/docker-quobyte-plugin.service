@@ -8,6 +8,7 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/quobyte/docker-quobyte.env
 ExecStart=/usr/local/bin/docker-quobyte-plugin
+LimitNOFILE=16384
 
 [Install]
 WantedBy=multi-user.target
