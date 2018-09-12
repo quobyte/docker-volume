@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
 	quobyte_api "github.com/quobyte/api"
@@ -91,6 +92,9 @@ func (driver quobyteDriver) checkMountPoint(mPoint string) error {
 		// we expected ErrExist, everything else is an error
 		return mkdErr
 	}
+	// NOTE(kaisers): Workaround for issue #9727, remove when #9628 has been implemented
+	time.Sleep(1 * time.Second)
+
 	// Verify volume is available
 	_, statErr := os.Stat(mPoint)
 	if statErr != nil {
