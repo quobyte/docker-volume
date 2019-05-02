@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -38,10 +39,25 @@ func newQuobyteDriver(apiURL string, username string, password string, quobyteMo
 	return driver
 }
 
+func (driver quobyteDriver) stripVolumeName(requestName string) (strippedVolumeName string, subdirPath string) {
+	nameElems := strings.SplitN(requestName, "/", 2)
+	if len(nameElems) == 2 {
+		subDir := path.Clean(nameElems[1])
+		return nameElems[0], subDir
+	}
+	return nameElems[0], ""
+}
+
 func (driver quobyteDriver) Create(request volume.Request) volume.Response {
-	log.Printf("Creating volume %s\n", request.Name)
 	driver.m.Lock()
 	defer driver.m.Unlock()
+
+	volumeName, subDirs := driver.stripVolumeName(request.Name)
+	if subDirs == "" {
+		log.Printf("Creating volume %s\n", volumeName)
+	} else {
+		log.Printf("Creating volume %s with subdir(s) %s\n", volumeName, subDirs)
+	}
 
 	user, group := "root", "root"
 	configurationName := driver.configName
@@ -62,7 +78,7 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 	}
 
 	if _, err := driver.client.CreateVolume(&quobyte_api.CreateVolumeRequest{
-		Name:              request.Name,
+		Name:              volumeName,
 		RootUserID:        user,
 		RootGroupID:       group,
 		ConfigurationName: configurationName,
@@ -76,10 +92,17 @@ func (driver quobyteDriver) Create(request volume.Request) volume.Response {
 		}
 	}
 
-	mPoint := filepath.Join(driver.quobyteMount, request.Name)
-	log.Printf("Validate mounting volume %s on %s\n", request.Name, mPoint)
+	mPoint := filepath.Join(driver.quobyteMount, volumeName)
+	log.Printf("Validate mounting volume %s on %s\n", volumeName, mPoint)
 	if err := driver.checkMountPoint(mPoint); err != nil {
 		return volume.Response{Err: err.Error()}
+	}
+
+	if subDirs != "" {
+		log.Printf("Creating subdir(s) %s for new volume %s\n", subDirs, volumeName)
+		if csdErr := os.MkdirAll(filepath.Join(mPoint, subDirs), 0755); csdErr != nil {
+			log.Printf("Unable to create subdirs in new volume: %s", csdErr)
+		}
 	}
 
 	return volume.Response{Err: ""}
@@ -105,11 +128,12 @@ func (driver quobyteDriver) checkMountPoint(mPoint string) error {
 }
 
 func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
-	log.Printf("Removing volume %s\n", request.Name)
 	driver.m.Lock()
 	defer driver.m.Unlock()
 
-	if err := driver.client.DeleteVolumeByName(request.Name, driver.tenantID); err != nil {
+	volumeName, _ := driver.stripVolumeName(request.Name)
+	log.Printf("Removing volume %s\n", volumeName)
+	if err := driver.client.DeleteVolumeByName(volumeName, driver.tenantID); err != nil {
 		log.Println(err)
 		return volume.Response{Err: err.Error()}
 	}
@@ -120,13 +144,15 @@ func (driver quobyteDriver) Remove(request volume.Request) volume.Response {
 func (driver quobyteDriver) Mount(request volume.MountRequest) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
-	mPoint := filepath.Join(driver.quobyteMount, request.Name)
-	log.Printf("Mounting volume %s on %s\n", request.Name, mPoint)
+	volumeName, _ := driver.stripVolumeName(request.Name)
+	mPoint := filepath.Join(driver.quobyteMount, volumeName)
+	log.Printf("Mounting volume %s on %s\n", volumeName, mPoint)
 	return volume.Response{Err: "", Mountpoint: mPoint}
 }
 
 func (driver quobyteDriver) Path(request volume.Request) volume.Response {
-	return volume.Response{Mountpoint: filepath.Join(driver.quobyteMount, request.Name)}
+	volumeName, _ := driver.stripVolumeName(request.Name)
+	return volume.Response{Mountpoint: filepath.Join(driver.quobyteMount, volumeName)}
 }
 
 func (driver quobyteDriver) Unmount(request volume.UnmountRequest) volume.Response {
@@ -137,7 +163,8 @@ func (driver quobyteDriver) Get(request volume.Request) volume.Response {
 	driver.m.Lock()
 	defer driver.m.Unlock()
 
-	mPoint := filepath.Join(driver.quobyteMount, request.Name)
+	volumeName, _ := driver.stripVolumeName(request.Name)
+	mPoint := filepath.Join(driver.quobyteMount, volumeName)
 
 	if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
 		log.Println(err)
@@ -160,7 +187,8 @@ func (driver quobyteDriver) List(request volume.Request) volume.Response {
 
 	for _, entry := range files {
 		if entry.IsDir() {
-			vols = append(vols, &volume.Volume{Name: entry.Name(), Mountpoint: filepath.Join(driver.quobyteMount, entry.Name())})
+			volumeName, _ := driver.stripVolumeName(entry.Name())
+			vols = append(vols, &volume.Volume{Name: entry.Name(), Mountpoint: filepath.Join(driver.quobyteMount, volumeName)})
 		}
 	}
 

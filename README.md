@@ -133,6 +133,16 @@ $ docker volume create --driver quobyte --name <volumename>
 $ docker volume create --driver quobyte --name <volumename> --opt user=docker --opt group=docker --opt configuration_name=SSD_ONLY
 ```
 
+#### Create a volume with an inital directory path
+
+You can create a new volume with a specific initial directory path inside by adding the directory path to be initialized to the volume name:
+
+```
+$ docker volume create --driver quobyte --name <volumename/with/a/path>
+```
+
+This results in a new volume with name `volumename` containing the directory path `/with/a/path`.
+
 ### Delete a volume
 
 __Important__: Be careful when using this. The volume removal allows removing any volume accessible in the configured tenant!
